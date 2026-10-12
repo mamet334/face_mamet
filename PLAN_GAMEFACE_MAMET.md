@@ -2,16 +2,27 @@
 
 **Status:** Perencanaan Aktif & Pembangunan Engine Mandiri
 
-**Keputusan Owner (Diperbarui 2026-10-10):** 
-1. **Fokus Penuh Membangun GameFace Engine:** `face mamet` diposisikan sebagai sub-code / modul engine mandiri yang dibangun dan dimatangkan terlebih dahulu hingga memenuhi seluruh ekspektasi visual dan interaktivitas Owner.
-2. **Goal Akhir Adalah 3D:** Target visual dan pengalaman pengguna utama adalah **3D (Three.js / React Three Fiber / WebGL 3D Living Office)**. Prototipe 2D saat ini berfungsi sebagai fondasi validasi alur logika (NavGraph, FSM, Kurir Berkas, Workspace Modes) sebelum diimplementasikan penuh ke engine 3D.
-3. **Fitur Suara Ditiadakan (No Audio):** Secara tegas **TIDAK MENGGUNAKAN FITUR SUARA** (tanpa SFX/BGM). Simulasi berfokus murni pada visual dan perilaku interaktif.
-4. **Integrasi ke Mamet Ecosystem adalah Tahap Terakhir:** Integrasi modul sub-code ke dalam repositori inti `mamet os ecosystem` baru akan dilakukan pada tahap paling akhir setelah seluruh engine 3D dan fitur visual selesai dan disetujui.
-5. **Konsep Multi-Agent Tim Manusia (Disetujui & Selesai):** Wujud berupa 5 karakter manusia ekspresif (*Human Office Squad*) dengan spot lounge terpisah di Pantry, bukan robot tunggal.
-6. **Logika Kurir Berkas Fisik (Disetujui & Selesai):** Tidak ada berkas melayang sendiri; TokenSaver (*Courier Intern*) membawa map fisik secara nyata antar meja.
-7. **Mode Workspace Mamet OS (Disetujui & Selesai):** Mendukung 5 mode workspace (`Global`, `Assistant`, `Engineer`, `Knowledge`, `Lite`) dengan penyorotan ruangan aktif dan kartu izin HUD.
+**Keputusan Owner (Diperbarui 2026-10-12):** 
+1. **Filosofi Sistem: Non-Otonom & User-Driven (Pilihan 1 Disetujui):** Mamet Ecosystem bukan sistem otonom yang bekerja sendiri tanpa arah; seluruh kerja komputasi berpusat pada instruksi Owner (*On-Demand / Human-in-the-Loop*).
+2. **Konsep Tata Ruang: Hybrid Workplace & Resort Recreation Campus:**
+   - **Zona Kerja Produktif:** 5 meja workstation spesialis (Command Center, Research Desk, Engineer Bay, Memory Vault, dan TokenSaver Hub) yang hanya aktif saat ada perintah Owner.
+   - **Zona Fasilitas Hiburan Lengkap:** Agen yang sedang tidak menerima tugas bebas bersantai dan menikmati seluruh fasilitas hiburan yang tersedia:
+     - **Kolam Renang 3D (Resort Pool Deck):** Kolam air jernih dengan kursi jemur santai (*sun loungers*) dan payung pantai.
+     - **Game Console & Arcade Corner:** TV layar lebar gaming, sofa gaming/beanbag, stik controller, dan arcade retro (terutama untuk The Engineer).
+     - **Daybed / Hammock Tiduran:** Kasur santai/sofa empuk untuk tidur nyenyak dengan huruf `Zzz` mengambang.
+     - **Cafe & Snack Bar:** Meja bar santai dan dispenser minuman/kopi.
+3. **Logika Siaga & Panggilan Tugas Cepat (*Recall on Command*):**
+   - Saat menganggur (*standby*), agen bebas berenang, main game, ngopi, atau tidur di area rekreasi.
+   - Begitu ada perintah dari Owner atau ada berkas diantar kurir TokenSaver, agen seketika **kaget bangun & siap (`!`)**, meninggalkan fasilitas hiburan, berlari menyusuri NavGraph kembali ke meja kerjanya, mengeksekusi tugas secara fokus hingga selesai, lalu bebas kembali menikmati fasilitas hiburan.
+4. **Fokus Penuh Membangun GameFace Engine:** `face mamet` diposisikan sebagai sub-code / modul engine mandiri yang dibangun dan dimatangkan terlebih dahulu hingga memenuhi seluruh ekspektasi visual dan interaktivitas Owner.
+5. **Goal Akhir Adalah 3D:** Target visual dan pengalaman pengguna utama adalah **3D (Three.js / React Three Fiber / WebGL 3D Living Office)**.
+6. **Fitur Suara Ditiadakan (No Audio):** Secara tegas **TIDAK MENGGUNAKAN FITUR SUARA** (tanpa SFX/BGM). Simulasi berfokus murni pada visual dan perilaku interaktif.
+7. **Integrasi ke Mamet Ecosystem adalah Tahap Terakhir:** Integrasi modul sub-code ke dalam repositori inti `mamet os ecosystem` baru akan dilakukan pada tahap paling akhir setelah seluruh engine 3D dan fitur visual selesai dan disetujui.
+8. **Konsep Multi-Agent Tim Manusia:** Wujud berupa 5 karakter manusia ekspresif (*Human Office Squad*), bukan robot kaku.
+9. **Logika Kurir Berkas Fisik:** Tidak ada berkas melayang sendiri; TokenSaver (*Courier Intern*) membawa map fisik secara nyata antar meja dengan antrean FIFO.
+10. **Mode Workspace Mamet OS:** Mendukung 5 mode workspace (`Global`, `Assistant`, `Engineer`, `Knowledge`, `Lite`) dengan penyorotan ruangan aktif dan kartu izin HUD.
 
-**Tanggal keputusan:** 2026-10-10 (Arahan Strategis: Goal 3D, Tanpa Suara, Fokus Engine Sub-Code, Integrasi Tahap Akhir)
+**Tanggal keputusan:** 2026-10-12 (Persetujuan Owner: Konsep Hybrid Workplace & Entertainment Resort, Logika Recall on Command, Non-Otonom User-Driven)
 
 **Kemajuan Saat Ini (Diperbarui 2026-10-12):**
 - **Repositori GitHub Terhubung & Bersih:** Terhubung ke `https://github.com/mamet334/face_mamet.git` (branch `main`). Aturan `.gitignore` ketat terpasang aktif, **0 file `node_modules` terupload (100% steril)**.
@@ -67,21 +78,38 @@ Face menampilkan suasana kantor agensi AI virtual yang hidup dengan **Multi-Agen
 4. **The Archivist (Memory Specialist):** Berpakaian bernuansa hijau/pustakawan kalem. Bertugas di Memory Room menata kubus arsip dan preferensi user.
 5. **TokenSaver (Junior Intern / Courier):** Berjaket sneakers lincah. Bertugas membawa map dokumen antar ruangan untuk efisiensi token.
 
-### B. Area Kantor Tematik
+### B. Area Tata Ruang: Zona Kerja Produktif vs Zona Fasilitas Hiburan
+
+#### 1. Zona Kerja Produktif (Workstation Core — On-Demand Only)
+Zona ini hanya aktif saat ada tugas dari Owner atau saat kurir mengantar berkas:
 - **Command Center:** Stasiun kerja Mamet Lead dan ringkasan status operasional.
 - **Research Room:** Meja riset, rak buku, dan sintesis dokumen/RAG.
 - **Engineer Room:** Workstation coding, terminal runtime, dan server rack.
 - **Memory Room:** Lemari vault penyimpanan dan kristal Truth Graph.
-- **Knowledge Graph Room:** Meja hologram relasi data dan kluster insight.
-- **Alert & Verification Hub:** Stasiun inspeksi kualitas dan peringatan error.
-- **Pantry & Break Lounge (Area Santai):** Meja kopi, dispenser air, sofa empuk, dan tanaman hias untuk agen yang sedang standby.
+- **TokenSaver Station:** Stasiun transit kurir dokumen.
 
-### C. Perilaku Alami Saat Menganggur (Idle / Relaxing / Sleeping)
-Agen tidak hanya berdiri mematung saat tidak ada pekerjaan:
-- **Santai & Ngopi (`RELAXING`):** Jika beberapa waktu menganggur, agen berjalan ke Pantry atau bersandar di kursi sambil memegang cangkir kopi/teh.
-- **Tidur Nyenyak (`SLEEPING`):** Jika menganggur lama tanpa antrean tugas, agen tertidur di meja kerjanya atau di sofa santai dengan gelembung animasi `Zzz`.
-- **Kaget & Terbangun (`SURPRISED`):** Begitu ada instruksi baru masuk dari Owner, agen yang sedang santai/tidur langsung kaget (tanda seru `!`), terbangun terburu-buru, lalu langsung fokus mengeksekusi tugasnya di komputer.
-- **Kolaborasi:** Agen dapat saling mengoper berkas data, bertegur sapa, atau memberikan selebrasi saat verifikasi berhasil.
+#### 2. Zona Fasilitas Hiburan & Rekreasi (Entertainment Resort Campus — Idle Facilities)
+Saat tidak ada perintah dari Owner, agen bebas menikmati seluruh fasilitas hiburan yang tersedia:
+- **Kolam Renang 3D (Resort Pool Deck):** Kolam renang air biru jernih, deck kayu/batu modern, kursi santai (*sun loungers*), dan payung pantai.
+- **Game Console & Arcade Lounge:** TV layar lebar gaming, sofa gaming/beanbag empuk, stik controller di tangan agen, dan mesin arcade retro (favorit The Engineer).
+- **Daybed / Hammock Tiduran Santai:** Area kasur/sofa santai empuk untuk tidur siang dengan animasi huruf `Zzz` mengambang lembut.
+- **Cafe & Snack Bar:** Meja bar santai, mesin kopi espresso, dan dispenser minuman.
+
+### C. Logika Perilaku: Standby Hiburan vs Panggilan Tugas Cepat (*Recall on Command*)
+
+1. **Status Menganggur / Standby:**
+   - Karena Mamet Ecosystem bukan sistem otonom, agen tidak membuang token atau bekerja tanpa izin.
+   - Saat sedang menganggur, agen berjalan menyusuri NavGraph ke fasilitas hiburan pilihan:
+     - The Engineer: bermain *game console* di sofa depan TV.
+     - The Researcher: duduk santai di kursi tepi kolam renang sambil membaca.
+     - The Archivist: tidur siang di daybed (*Zzz*).
+     - Mamet: santai menikmati kopi di Cafe Bar.
+2. **Panggilan Tugas Cepat (*Recall on Command*):**
+   - Begitu Owner memasukkan instruksi atau kurir TokenSaver memanggil dengan membawa berkas:
+   - Agen seketika **kaget bangun & siap siaga (`!`)**, melepaskan aktivitas santainya.
+   - Berlari kembali menyusuri koridor NavGraph ke workstation mejanya.
+   - Duduk dan menyalakan komputer untuk menyelesaikan instruksi hingga tuntas.
+   - Setelah tugas selesai dan diverifikasi (`SUCCESS`), agen menyerahkan laporan, lalu bebas kembali bersantai di fasilitas hiburan.
 
 ## 5. Rute Teknologi Engine Menuju Target 3D
 
@@ -338,7 +366,7 @@ Rancangan dan engine dianggap tuntas jika:
 - tidak ada fitur audio/suara yang mengganggu;
 - modul sub-code siap dipasang ke Mamet OS saat Owner memberikan persetujuan final.
 
-## 11. Status Keputusan Owner (Diperbarui 2026-10-10)
+## 11. Status Keputusan Owner (Diperbarui 2026-10-12)
 
 1. **Gaya Visual & Dimensi:** ✅ **DISETUJUI (2026-10-10): GOAL UTAMA ADALAH 3D** (Stylized Low-Poly / Modern 3D Living Office via Three.js / R3F).
 2. **Efek Suara / Audio:** ❌ **DITOLAK / TIDAK DIGUNAKAN (2026-10-10): Owner menegaskan tidak ingin fitur suara.**
@@ -346,10 +374,12 @@ Rancangan dan engine dianggap tuntas jika:
 4. **Fokus Pengerjaan:** ✅ **Membangun & mematangkan GameFace Engine sampai tuntas sesuai keinginan Owner.**
 5. **Waktu Integrasi ke Mamet OS:** ⏳ **TAHAP PALING AKHIR (FINAL PHASE)** setelah seluruh engine 3D selesai dan disetujui.
 6. **Jumlah Agen:** ✅ Multi-Agent Tim Manusia 5 Pekerja (Mamet Lead, Engineer, Researcher, Archivist, TokenSaver).
-7. **Perilaku Idle:** ✅ Otomatis santai/ngopi di pantry lounge, tidur Zzz di sofa/meja, dan kaget bangun saat tugas tiba.
-8. **Pengantaran Berkas:** ✅ Fisik dibawa oleh kurir TokenSaver dengan antrean pengantaran teratur (tidak ada berkas melayang gaib).
-9. **Mode Workspace:** ✅ 5 mode workspace (`Global`, `Assistant`, `Engineer`, `Knowledge`, `Lite`) dengan visual aktif/off-scope.
-10. **Repositori Inti:** ✅ **Steril 100% (Read-Only)** sampai ada persetujuan integrasi final.
+7. **Filosofi Sistem: Non-Otonom & User-Driven:** ✅ **DISETUJUI (2026-10-12):** Kerja komputasi dan tugas murni digerakkan oleh perintah Owner (*On-Demand / Human-in-the-Loop*), bukan agen otonom liar.
+8. **Tata Ruang Hybrid Workplace & Resort Recreation Campus:** ✅ **DISETUJUI (2026-10-12):** Terbagi menjadi Zona Kerja Workstation dan Zona Fasilitas Hiburan Lengkap (Kolam Renang 3D, Game Console Lounge, Daybed Tiduran, Cafe Bar).
+9. **Logika Standby vs Recall on Command:** ✅ **DISETUJUI (2026-10-12):** Agen bebas menikmati fasilitas hiburan saat standby; saat tugas tiba, seketika kaget siap (`!`), berlari ke meja kerja, menyelesaikan tugas, lalu kembali bersantai.
+10. **Pengantaran Berkas:** ✅ Fisik dibawa oleh kurir TokenSaver dengan antrean pengantaran teratur (tidak ada berkas melayang gaib).
+11. **Mode Workspace:** ✅ 5 mode workspace (`Global`, `Assistant`, `Engineer`, `Knowledge`, `Lite`) dengan visual aktif/off-scope.
+12. **Repositori Inti:** ✅ **Steril 100% (Read-Only)** sampai ada persetujuan integrasi final.
 
 ## 12. Aturan kerja yang berlaku
 
