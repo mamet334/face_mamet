@@ -13,11 +13,15 @@
 
 **Tanggal keputusan:** 2026-10-10 (Arahan Strategis: Goal 3D, Tanpa Suara, Fokus Engine Sub-Code, Integrasi Tahap Akhir)
 
-**Kemajuan Saat Ini:**
-- Fondasi logika 2D tuntas: NavGraph BFS, Avatar FSM, Idle Behaviors (Ngopi/Tidur Zzz/Kaget Bangun), Bubble Status, Live Worker Focus Inspector.
-- Pengantaran berkas fisik oleh kurir manusia (TokenSaver) dengan map fisik dan antrean pengantaran concurrency (`courierQueue`).
-- 5 Mode Workspace Mamet OS terintegrasi dengan penyorotan visual ruangan aktif dan peredupan ruangan *off-scope*.
-- **42/42 Unit Test Fondasi Lulus (100% PASS)** dan repositori inti tetap 100% steril (Read-Only).
+**Kemajuan Saat Ini (Diperbarui 2026-10-12):**
+- **Repositori GitHub Terhubung & Bersih:** Terhubung ke `https://github.com/mamet334/face_mamet.git` (branch `main`). Aturan `.gitignore` ketat terpasang aktif, **0 file `node_modules` terupload (100% steril)**.
+- **Engine 3D (Tahap 5) Selesai Dibangun:** Three.js 3D Living Office Engine aktif pada 60 FPS di `.work/gameface-3d-engine/` dan live preview di `http://127.0.0.1:5180/`.
+- **5 Karakter Tim Manusia 3D Ekspresif:** Mamet Lead, The Engineer, The Researcher, The Archivist, dan TokenSaver dengan model low-poly 3D prosedural lengkap dengan sendi animasi (berjalan, mengetik, ngopi, tidur Zzz di sofa/meja, kaget bangun `!`, dan membawa map berkas fisik).
+- **Kurir Berkas Fisik 3D (TokenSaver):** FIFO delivery queue menggerakkan TokenSaver mengambil map berkas manila di meja pengirim dan menyerahkannya langsung ke meja penerima secara fisik (tidak ada berkas melayang gaib).
+- **5 Mode Workspace Mamet OS 3D:** (`Global`, `Assistant`, `Engineer`, `Knowledge`, `Lite`) dengan penyorotan karpet ruangan dan spotlight dinamis.
+- **Kamera 3D Interaktif:** Orbit controls dengan smooth cinematic preset focus ke masing-masing meja kerja agen.
+- **Integritas Ketat Tanpa Audio (No Audio):** Nol dependensi suara, SFX, atau BGM (100% visual simulation).
+- **Pengujian Unit 3D Lulus Penuh:** **38/38 Unit Test 3D Lulus (100% PASS)** dan repositori inti `mamet os ecosystem` tetap 100% steril (Read-Only).
 
 **Batasan Utama:** Repositori inti `mamet os ecosystem` tetap steril (Read-Only) sampai seluruh engine GameFace 3D selesai dibangun dan disetujui.
 
