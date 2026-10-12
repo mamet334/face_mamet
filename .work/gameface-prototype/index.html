@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mamet Living Office — Prototype</title>
+  <style>
+    :root { --bg:#07111a; --panel:#0d1b28; --line:#1d3c50; --text:#e6f3f6; --muted:#83a1ad; --cyan:#57d7e6; --green:#72e6a1; --yellow:#ffd479; --red:#ff7f88; --purple:#c89cff; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif; background:radial-gradient(circle at 55% 20%,#12344a 0,#07111a 48%,#04090e 100%); }
+    .app { min-height:100vh; display:grid; grid-template-columns:minmax(0,1fr) 330px; }
+    .stage { position:relative; padding:22px; min-height:720px; }
+    .topbar { position:absolute; inset:22px 22px auto; display:flex; align-items:center; justify-content:space-between; z-index:2; }
+    .brand { display:flex; gap:12px; align-items:center; }
+    .logo { width:38px; height:38px; display:grid; place-items:center; border:1px solid #3a8a98; border-radius:12px; color:var(--cyan); background:#0e2a38; box-shadow:0 0 22px #45d5ef2a; font-weight:800; }
+    .eyebrow { color:var(--cyan); font-size:10px; letter-spacing:.18em; text-transform:uppercase; }
+    h1 { margin:2px 0 0; font-size:18px; letter-spacing:.02em; }
+    .mode { border:1px solid #2c5a6b; border-radius:999px; padding:8px 12px; color:var(--green); font-size:11px; background:#0c2430cc; }
+    canvas { width:100%; height:calc(100vh - 44px); min-height:676px; display:block; border:1px solid #1b4254; border-radius:22px; background:#081621; box-shadow:0 20px 70px #0008, inset 0 0 90px #2ad0e812; }
+    .hud { position:absolute; left:42px; bottom:40px; max-width:360px; border:1px solid #28566b; border-radius:14px; background:#0a1b28dd; backdrop-filter:blur(12px); padding:13px 15px; }
+    .hud strong { color:var(--cyan); font-size:12px; }
+    .hud p { margin:6px 0 0; color:#c5dce2; font-size:12px; line-height:1.5; }
+    .side { border-left:1px solid #173548; background:#08141fcc; padding:22px 18px; display:flex; flex-direction:column; gap:16px; }
+    .side h2 { margin:0; font-size:15px; }
+    .sub { color:var(--muted); font-size:11px; margin-top:4px; }
+    .card { border:1px solid #1b3b4d; border-radius:15px; background:#0b1b28cc; padding:14px; }
+    .status-row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .status { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--green); }
+    .dot { width:8px; height:8px; border-radius:99px; background:var(--green); box-shadow:0 0 12px var(--green); }
+    .metric-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+    .metric { padding:10px; border-radius:10px; background:#0c2431; border:1px solid #1c4352; }
+    .metric b { display:block; font-size:19px; color:var(--cyan); }
+    .metric span { color:var(--muted); font-size:10px; }
+    .activity { min-height:160px; max-height:220px; overflow:auto; display:flex; flex-direction:column; gap:8px; }
+    .event { border-left:2px solid var(--cyan); padding:7px 8px; background:#0d2430; border-radius:0 8px 8px 0; font-size:11px; }
+    .event small { display:block; color:var(--muted); margin-top:3px; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    button { border:1px solid #2a6474; border-radius:10px; color:#dffcff; background:#103342; padding:10px 8px; font-size:11px; cursor:pointer; transition:.18s ease; }
+    button:hover { transform:translateY(-1px); background:#17495a; border-color:var(--cyan); box-shadow:0 0 18px #45d5ef1e; }
+    button:active { transform:translateY(0); }
+    .legend { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .legend span { color:var(--muted); font-size:10px; display:flex; align-items:center; gap:5px; }
+    .legend i { width:7px; height:7px; border-radius:99px; display:inline-block; }
+    .note { color:#7595a1; font-size:10px; line-height:1.5; margin-top:auto; }
+    @media(max-width:900px) { .app { grid-template-columns:1fr; } .side { border-left:0; border-top:1px solid #173548; } canvas { height:600px; min-height:600px; } .stage { min-height:644px; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="stage">
+      <div class="topbar"><div class="brand"><div class="logo">M</div><div><div class="eyebrow">Prototype / Face Baru</div><h1>Mamet Living Office</h1></div></div><div class="mode">● AVATAR ACTIVE</div></div>
+      <canvas id="world" width="1100" height="700" aria-label="Kantor virtual Mamet"></canvas>
+      <div class="hud"><strong id="hudTitle">Command Center</strong><p id="hudText">Mamet sedang menunggu aktivitas. Tekan tombol simulasi untuk melihat avatar merespons.</p></div>
+    </section>
+    <aside class="side">
+      <div><h2>Avatar Activity</h2><div class="sub">Representasi visual aktivitas AI dan kode</div></div>
+      <div class="card"><div class="status-row"><div class="status"><span class="dot"></span><span id="state">IDLE / READY</span></div><span class="eyebrow">LIVE</span></div><div class="metric-grid"><div class="metric"><b id="metricEvents">04</b><span>events hari ini</span></div><div class="metric"><b id="metricFocus">01</b><span>aktivitas aktif</span></div></div></div>
+      <div class="card"><div class="eyebrow">Activity stream</div><div class="activity" id="activity"></div></div>
+      <div class="card"><div class="eyebrow">Simulasi event</div><div class="actions"><button data-event="research">Mulai Research</button><button data-event="code">Jalankan Kode</button><button data-event="memory">Simpan Memory</button><button data-event="error">Simulasi Error</button></div><div class="legend"><span><i style="background:#57d7e6"></i>aktif</span><span><i style="background:#72e6a1"></i>berhasil</span><span><i style="background:#ff7f88"></i>alert</span></div></div>
+      <div class="note">Mockup ini berdiri sendiri dan tidak terhubung ke Mamet Ecosystem, Supabase, atau Kernel. Tujuannya hanya untuk memvisualkan arah pengalaman.</div>
+    </aside>
+  </main>
+<script>
+  const canvas = document.getElementById('world'), ctx = canvas.getContext('2d');
+  const rooms = { command:{x:90,y:105,w:260,h:190,label:'COMMAND CENTER',color:'#57d7e6'}, research:{x:410,y:105,w:260,h:195,label:'RESEARCH ROOM',color:'#c89cff'}, engineer:{x:730,y:105,w:260,h:195,label:'ENGINEER ROOM',color:'#ffd479'}, memory:{x:250,y:405,w:300,h:175,label:'MEMORY ROOM',color:'#72e6a1'}, knowledge:{x:630,y:405,w:300,h:175,label:'KNOWLEDGE GRAPH',color:'#7db8ff'} };
+  const paths = { command:{x:220,y:300}, research:{x:540,y:300}, engineer:{x:860,y:300}, memory:{x:400,y:405}, knowledge:{x:780,y:405} };
+  const avatar = { x:220, y:330, tx:220, ty:330, state:'idle', color:'#57d7e6', bob:0, target:'command' };
+  let currentEvent = null, eventCount = 4;
+  const labels = { research:['RESEARCHING','Mamet sedang membaca dan menghubungkan sumber knowledge.','research','c89cff'], code:['CODING','Mamet sedang menganalisis dan menjalankan kode.','engineer','ffd479'], memory:['STORING MEMORY','Mamet sedang menyimpan konteks penting ke memory.','memory','72e6a1'], error:['ALERT','Mamet menemukan sesuatu yang membutuhkan perhatian Owner.','knowledge','ff7f88'] };
+  function roundRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+  function draw(){
+    const dpr=window.devicePixelRatio||1; if(canvas.width!==1100*dpr){canvas.width=1100*dpr;canvas.height=700*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);} ctx.clearRect(0,0,1100,700);
+    const g=ctx.createLinearGradient(0,0,1100,700);g.addColorStop(0,'#0a1f2d');g.addColorStop(1,'#061018');ctx.fillStyle=g;ctx.fillRect(0,0,1100,700);
+    ctx.strokeStyle='#103444';ctx.lineWidth=1; for(let x=35;x<1100;x+=32){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,700);ctx.stroke();} for(let y=30;y<700;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(1100,y);ctx.stroke();}
+    Object.entries(rooms).forEach(([key,r])=>{ctx.fillStyle='#0c2330';roundRect(r.x,r.y,r.w,r.h,18);ctx.fill();ctx.strokeStyle=r.color+'55';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle=r.color;ctx.font='600 11px system-ui';ctx.fillText(r.label,r.x+18,r.y+25);ctx.fillStyle='#86a8b3';ctx.font='11px system-ui';ctx.fillText(key==='command'?'status, routing, owner control':key==='research'?'sources, browsing, synthesis':key==='engineer'?'runtime, tests, builds':key==='memory'?'context, preferences, decisions':'relations, clusters, growth',r.x+18,r.y+47); drawRoomObjects(key,r);});
+    ctx.strokeStyle='#2b5967';ctx.setLineDash([6,8]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(350,200);ctx.lineTo(410,200);ctx.moveTo(670,200);ctx.lineTo(730,200);ctx.moveTo(350,470);ctx.lineTo(250,470);ctx.moveTo(550,490);ctx.lineTo(630,490);ctx.stroke();ctx.setLineDash([]);
+    const dx=avatar.tx-avatar.x,dy=avatar.ty-avatar.y,dist=Math.hypot(dx,dy); if(dist>1){avatar.x+=dx*.045;avatar.y+=dy*.045;avatar.state='walking';} else if(avatar.state==='walking'){avatar.state=currentEvent?'working':'idle';}
+    avatar.bob+=.08; drawAvatar(avatar.x,avatar.y+Math.sin(avatar.bob)*2); requestAnimationFrame(draw);
+  }
+  function drawRoomObjects(key,r){ctx.fillStyle='#1a3b49'; if(key==='command'){ctx.fillRect(r.x+35,r.y+80,75,45);ctx.fillStyle='#57d7e6';ctx.fillRect(r.x+47,r.y+91,51,24);ctx.fillStyle='#9adce4';ctx.fillRect(r.x+145,r.y+87,45,8);ctx.fillRect(r.x+145,r.y+102,62,8);} if(key==='research'){for(let i=0;i<3;i++){ctx.fillStyle='#6d5595';ctx.fillRect(r.x+35+i*54,r.y+88,36,46);ctx.fillStyle='#d9bcff';ctx.fillRect(r.x+40+i*54,r.y+96,24,3);ctx.fillRect(r.x+40+i*54,r.y+106,18,3);}} if(key==='engineer'){ctx.fillStyle='#182d38';ctx.fillRect(r.x+32,r.y+82,130,62);ctx.fillStyle='#ffd479';ctx.fillRect(r.x+45,r.y+99,46,3);ctx.fillStyle='#72e6a1';ctx.fillRect(r.x+45,r.y+112,70,3);ctx.fillStyle='#57d7e6';ctx.fillRect(r.x+45,r.y+125,35,3);} if(key==='memory'){for(let i=0;i<5;i++){ctx.fillStyle=i%2?'#275c55':'#2e6d5e';ctx.fillRect(r.x+34+i*48,r.y+85,32,45);ctx.fillStyle='#9ef0ba';ctx.fillRect(r.x+40+i*48,r.y+95,20,3);}} if(key==='knowledge'){ctx.strokeStyle='#5084a8';ctx.lineWidth=2;[[70,100,160,75],[70,100,145,130],[160,75,230,115],[145,130,230,115]].forEach(a=>{ctx.beginPath();ctx.moveTo(r.x+a[0],r.y+a[1]);ctx.lineTo(r.x+a[2],r.y+a[3]);ctx.stroke();});[[70,100],[160,75],[145,130],[230,115]].forEach((p,i)=>{ctx.fillStyle=i===0?'#57d7e6':'#7db8ff';ctx.beginPath();ctx.arc(r.x+p[0],r.y+p[1],8,0,Math.PI*2);ctx.fill();});}}
+  function drawAvatar(x,y){ctx.save();ctx.translate(x,y);ctx.shadowBlur=22;ctx.shadowColor=avatar.color;ctx.fillStyle=avatar.color;ctx.globalAlpha=.16;ctx.beginPath();ctx.arc(0,0,28,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.fillStyle='#102a38';ctx.strokeStyle=avatar.color;ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,-9,16,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.beginPath();ctx.ellipse(0,16,19,13,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=avatar.color;ctx.beginPath();ctx.arc(-6,-10,3,0,Math.PI*2);ctx.arc(6,-10,3,0,Math.PI*2);ctx.fill();ctx.strokeStyle=avatar.color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-6,-1);ctx.quadraticCurveTo(0,3,6,-1);ctx.stroke();if(currentEvent){ctx.fillStyle='#dffcff';ctx.font='600 10px system-ui';ctx.textAlign='center';ctx.fillText(currentEvent[0],0,-43);}ctx.restore();}
+  function trigger(type){const data=labels[type];currentEvent=data;avatar.target=data[2];avatar.tx=paths[data[2]].x;avatar.ty=paths[data[2]].y;avatar.state='walking';avatar.color='#'+data[3];document.getElementById('state').textContent=data[0];document.getElementById('state').style.color='#'+data[3];document.getElementById('hudTitle').textContent=rooms[data[2]].label;document.getElementById('hudText').textContent=data[1];eventCount++;document.getElementById('metricEvents').textContent=String(eventCount).padStart(2,'0');document.getElementById('metricFocus').textContent='01';const el=document.createElement('div');el.className='event';el.style.borderColor='#'+data[3];el.innerHTML='<b>'+data[0]+'</b><small>'+data[1]+'</small>';document.getElementById('activity').prepend(el);setTimeout(()=>{currentEvent=null;avatar.tx=paths.command.x;avatar.ty=paths.command.y;document.getElementById('state').textContent='IDLE / READY';document.getElementById('state').style.color='var(--green)';document.getElementById('hudTitle').textContent='Command Center';document.getElementById('hudText').textContent='Aktivitas selesai. Mamet kembali menunggu instruksi berikutnya.';document.getElementById('metricFocus').textContent='00';},5200);}
+  document.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>trigger(b.dataset.event))); [['SYSTEM READY','Mamet Living Office siap menampilkan aktivitas.'],['HOME','Avatar berada di Command Center.']].forEach(a=>{const el=document.createElement('div');el.className='event';el.innerHTML='<b>'+a[0]+'</b><small>'+a[1]+'</small>';document.getElementById('activity').append(el);}); draw();
+</script>
+</body>
+</html>

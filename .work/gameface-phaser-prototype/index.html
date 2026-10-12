@@ -1,0 +1,1184 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mamet Living Office — Multi-Agent Human Squad</title>
+  <script src="/node_modules/phaser/dist/phaser.min.js"></script>
+  <style>
+    :root {
+      --bg: #07111a;
+      --panel: #0a1c28;
+      --line: #1b4254;
+      --text: #e6f3f6;
+      --muted: #83a1ad;
+      --cyan: #57d7e6;
+      --green: #72e6a1;
+      --yellow: #ffd479;
+      --red: #ff7f88;
+      --purple: #c89cff;
+      --pink: #ff9fc7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% 25%, #0e2738 0%, #06121a 50%, #03080d 100%);
+      overflow-x: hidden;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 20px;
+      padding: 20px;
+      min-height: 100vh;
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+    .game-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: #0e2b3b;
+      border: 1px solid var(--cyan);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: var(--cyan);
+      font-weight: 800;
+      box-shadow: 0 0 16px rgba(87, 215, 230, 0.2);
+    }
+    .brand-text h1 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: 0.02em;
+    }
+    .brand-text span {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(114, 230, 161, 0.12);
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .status-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+    /* Workspace Mode Switcher Bar */
+    .ws-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 14px;
+      background: #081622;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      flex-wrap: wrap;
+    }
+    .ws-label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ws-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .ws-tab-btn {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 8px;
+      background: #0b1f2e;
+      border: 1px solid var(--line);
+      color: #92b1be;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .ws-tab-btn:hover {
+      background: #113149;
+      color: #fff;
+      border-color: var(--cyan);
+      transform: translateY(-1px);
+    }
+    .ws-tab-btn.active {
+      background: #103852;
+      color: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 14px rgba(87, 215, 230, 0.3);
+    }
+    .ws-tab-btn.active[data-ws="ws-engineer"] {
+      color: var(--yellow);
+      border-color: var(--yellow);
+      box-shadow: 0 0 14px rgba(255, 212, 121, 0.3);
+    }
+    .ws-tab-btn.active[data-ws="ws-knowledge"] {
+      color: var(--purple);
+      border-color: var(--purple);
+      box-shadow: 0 0 14px rgba(200, 156, 255, 0.3);
+    }
+    .ws-tab-btn.active[data-ws="ws-lite"] {
+      color: var(--pink);
+      border-color: var(--pink);
+      box-shadow: 0 0 14px rgba(255, 159, 199, 0.3);
+    }
+    .cap-badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: rgba(87, 215, 230, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(87, 215, 230, 0.35);
+      display: inline-block;
+    }
+    .perm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin-top: 6px;
+      font-size: 10px;
+      color: #8daab8;
+    }
+    .perm-val {
+      font-weight: 700;
+      color: #e6f3f6;
+    }
+    #game-container {
+      width: 100%;
+      height: calc(100vh - 170px);
+      min-height: 540px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #07111a;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(87, 215, 230, 0.04);
+    }
+    #game-container canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    .hud-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .card-title {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--cyan);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .telemetry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .telemetry-state {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      background: rgba(87, 215, 230, 0.15);
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+    }
+    .room-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .status-desc {
+      font-size: 12px;
+      color: #9dbcc9;
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+    .agent-roster {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .agent-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: #081622;
+      border-left: 3px solid #57d7e6;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      user-select: none;
+    }
+    .agent-row:hover {
+      background: #0d283c;
+      transform: translateX(3px);
+    }
+    .agent-row.active {
+      background: #11334c;
+      box-shadow: 0 0 14px rgba(87, 215, 230, 0.25);
+    }
+    .agent-row-name {
+      font-weight: 600;
+      color: #d8f1f7;
+    }
+    .agent-row-pill {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: rgba(87, 215, 230, 0.15);
+      color: #57d7e6;
+    }
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    button {
+      padding: 9px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #0e2736;
+      color: #dffcff;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      text-align: center;
+    }
+    button:hover:not(:disabled) {
+      background: #174258;
+      border-color: var(--cyan);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(87, 215, 230, 0.2);
+    }
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-research { color: var(--purple); border-color: rgba(200, 156, 255, 0.4); }
+    .btn-code { color: var(--yellow); border-color: rgba(255, 212, 121, 0.4); }
+    .btn-memory { color: var(--green); border-color: rgba(114, 230, 161, 0.4); }
+    .btn-alert { color: var(--red); border-color: rgba(255, 127, 136, 0.4); }
+    .btn-pipeline {
+      width: 100%;
+      margin-top: 8px;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, #164e63 0%, #1e3a8a 100%);
+      border-color: var(--cyan);
+      box-shadow: 0 4px 14px rgba(87, 215, 230, 0.25);
+    }
+    .btn-pipeline:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0e7490 0%, #1d4ed8 100%);
+      box-shadow: 0 6px 18px rgba(87, 215, 230, 0.4);
+    }
+    .btn-lounge {
+      width: 100%;
+      margin-top: 6px;
+      color: var(--pink);
+      background: #25121e;
+      border-color: rgba(255, 159, 199, 0.4);
+    }
+    .btn-home {
+      width: 100%;
+      margin-top: 6px;
+      color: var(--cyan);
+      background: #0a2f42;
+      border-color: var(--cyan);
+    }
+    .btn-courier {
+      width: 100%;
+      margin-top: 6px;
+      color: #ffd479;
+      background: #20170a;
+      border-color: rgba(255, 212, 121, 0.4);
+      font-weight: 700;
+    }
+    .btn-courier:hover:not(:disabled) {
+      background: #38270e;
+      border-color: #ffd479;
+      box-shadow: 0 4px 14px rgba(255, 212, 121, 0.25);
+    }
+    .activity-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 170px;
+      overflow-y: auto;
+    }
+    .event-item {
+      padding: 6px 9px;
+      border-radius: 8px;
+      background: #081521;
+      border-left: 3px solid var(--cyan);
+      font-size: 11px;
+    }
+    .event-item.success { border-left-color: var(--green); }
+    .event-item.alert { border-left-color: var(--red); }
+    .event-top {
+      display: flex;
+      justify-content: space-between;
+      color: #b5dbe4;
+      font-weight: 600;
+    }
+    .event-top span {
+      font-size: 9px;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+    .event-msg {
+      font-size: 10px;
+      color: #8faeb9;
+      margin-top: 2px;
+    }
+    .nav-hints {
+      font-size: 10px;
+      color: #72929e;
+      line-height: 1.5;
+    }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      #game-container { height: 480px; min-height: 480px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <section class="game-pane">
+      <header class="header-bar">
+        <div class="brand">
+          <div class="brand-icon">M</div>
+          <div class="brand-text">
+            <span>Multi-Agent Human Office Squad</span>
+            <h1>Mamet Living Office (Phaser 2D)</h1>
+          </div>
+        </div>
+        <div class="status-badge">
+          <span class="dot"></span>
+          <span>5 AGENTS ONLINE</span>
+        </div>
+      </header>
+
+      <!-- Workspace Mode Switcher Toolbar -->
+      <div class="ws-toolbar">
+        <div class="ws-label">
+          <span>⚙️ MAMET WORKSPACE:</span>
+        </div>
+        <div class="ws-tabs">
+          <button class="ws-tab-btn active" data-ws="global">🌐 Global OS</button>
+          <button class="ws-tab-btn" data-ws="ws-assistant">👑 Assistant WS</button>
+          <button class="ws-tab-btn" data-ws="ws-engineer">💻 Engineer WS</button>
+          <button class="ws-tab-btn" data-ws="ws-knowledge">📚 Knowledge WS</button>
+          <button class="ws-tab-btn" data-ws="ws-lite">⚡ Lite WS</button>
+        </div>
+      </div>
+
+      <div id="game-container"></div>
+    </section>
+
+    <aside class="hud-pane">
+      <!-- 0. Workspace Manifest Card -->
+      <div class="card" id="ws-card">
+        <div class="telemetry-header">
+          <span class="card-title" style="margin:0">Active Workspace</span>
+          <span id="ws-badge" class="telemetry-state" style="border-color:var(--cyan); color:var(--cyan)">🌐 Global OS</span>
+        </div>
+        <div id="ws-name" class="room-name" style="font-size:14px; margin-top:4px;">Global Observability Mode</div>
+        <div id="ws-desc" class="status-desc">
+          Seluruh 5 pekerja dan seluruh ruangan aktif dalam kolaborasi menyeluruh.
+        </div>
+        <div style="margin-top:8px;">
+          <div style="font-size:9px; color:var(--muted); font-weight:700; text-transform:uppercase;">Capabilities:</div>
+          <div id="ws-caps" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">
+            <span class="cap-badge">cap:core-apps</span>
+            <span class="cap-badge">cap:settings</span>
+            <span class="cap-badge">cap:observability</span>
+          </div>
+        </div>
+        <div class="perm-grid">
+          <div>Read: <span id="ws-perm-read" class="perm-val">all</span></div>
+          <div>Write: <span id="ws-perm-write" class="perm-val">all</span></div>
+          <div style="grid-column: span 2;">Tools Access: <span id="ws-perm-tools" class="perm-val">full</span></div>
+        </div>
+      </div>
+
+      <!-- 1. Telemetry Card (Worker Inspector) -->
+      <div class="card" id="focus-card">
+        <div class="telemetry-header">
+          <span class="card-title" style="margin:0">Live Worker Focus</span>
+          <span id="state-pill" class="telemetry-state">READY</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:4px;">
+          <span id="worker-icon" style="font-size:22px;">👑</span>
+          <div>
+            <div id="worker-name" class="room-name">Mamet Lead</div>
+            <div id="worker-role" style="font-size:11px; color:var(--cyan); font-weight:600;">Team Lead — Orchestrator</div>
+          </div>
+        </div>
+        <div id="room-name" style="font-size:11px; color:#83a1ad; margin-top:6px; font-weight:600;">📍 Command Center</div>
+        <div id="status-desc" class="status-desc">
+          Siap di stasiun kerja untuk menerima instruksi.
+        </div>
+      </div>
+
+      <!-- 2. Multi-Agent Roster Card -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span class="card-title" style="margin:0">👥 Human Agent Squad</span>
+          <span style="font-size:9px; color:var(--muted);">Klik baris untuk fokus</span>
+        </div>
+        <div class="agent-roster">
+          <div class="agent-row active" data-agent="mamet" style="border-left-color: #57d7e6">
+            <span class="agent-row-name">👑 Mamet Lead</span>
+            <span id="pill-mamet" class="agent-row-pill" style="color:#57d7e6">READY</span>
+          </div>
+          <div class="agent-row" data-agent="engineer" style="border-left-color: #ffd479">
+            <span class="agent-row-name">💻 The Engineer</span>
+            <span id="pill-engineer" class="agent-row-pill" style="color:#ffd479">READY</span>
+          </div>
+          <div class="agent-row" data-agent="researcher" style="border-left-color: #c89cff">
+            <span class="agent-row-name">📚 The Researcher</span>
+            <span id="pill-researcher" class="agent-row-pill" style="color:#c89cff">READY</span>
+          </div>
+          <div class="agent-row" data-agent="archivist" style="border-left-color: #72e6a1">
+            <span class="agent-row-name">💾 The Archivist</span>
+            <span id="pill-archivist" class="agent-row-pill" style="color:#72e6a1">READY</span>
+          </div>
+          <div class="agent-row" data-agent="tokensaver" style="border-left-color: #ff9fc7">
+            <span class="agent-row-name">☕ TokenSaver</span>
+            <span id="pill-tokensaver" class="agent-row-pill" style="color:#ff9fc7">☕ RELAX</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Simulation Controls -->
+      <div class="card">
+        <div class="card-title">Simulasi Perintah & Tugas</div>
+        <div class="btn-grid">
+          <button id="btn-research" class="btn-research">Riset (RAG)</button>
+          <button id="btn-code" class="btn-code">Jalankan Kode</button>
+          <button id="btn-memory" class="btn-memory">Simpan Memori</button>
+          <button id="btn-alert" class="btn-alert">Simulasi Alert</button>
+        </div>
+        <button id="btn-full-pipeline" class="btn-pipeline">🚀 Jalankan Full Pipeline (Orkestrasi 5 Agen)</button>
+        <button id="btn-courier-run" class="btn-courier">🏃 Uji Kurir Antar Berkas (TokenSaver Delivery)</button>
+        <button id="btn-lounge" class="btn-lounge">Semua Agen Santai di Pantry Lounge</button>
+        <button id="btn-home" class="btn-home">Kembali ke Stasiun Kerja</button>
+      </div>
+
+      <!-- 4. Normalized Activity Stream -->
+      <div class="card" style="flex:1;">
+        <div class="card-title">Activity Stream</div>
+        <div id="activity-stream" class="activity-stream">
+          <div class="event-item">
+            <div class="event-top">
+              <b>System:SquadInitialized</b>
+              <span>SUCCESS</span>
+            </div>
+            <div class="event-msg">Tim 5 agen manusia dan Pantry Lounge aktif.</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module">
+    import { NavGraph } from './src/game/world/NavGraph.js?v=human_squad_v6';
+    import { OfficeMap } from './src/game/world/OfficeMap.js?v=human_squad_v6';
+    import { MametAvatar } from './src/game/entities/MametAvatar.js?v=human_squad_v6';
+    import { EventBus } from './src/game/EventBus.js?v=human_squad_v6';
+    import { ActivityBus } from './src/activity/ActivityBus.js?v=human_squad_v6';
+    import { ActivityAdapter } from './src/activity/ActivityAdapter.js?v=human_squad_v6';
+    import { ROOM_DEFINITIONS, WORKSPACE_DEFINITIONS } from './src/activity/ActivityTypes.js?v=human_squad_v6';
+
+    const activityBus = new ActivityBus();
+    const activityAdapter = new ActivityAdapter(activityBus);
+
+    // Scene Boot
+    class BootScene extends Phaser.Scene {
+      constructor() { super('BootScene'); }
+      create() {
+        this.scene.start('OfficeScene');
+      }
+    }
+
+    // Scene Utama Multi-Agent
+    class OfficeScene extends Phaser.Scene {
+      constructor() {
+        super('OfficeScene');
+        this.agents = new Map();
+      }
+
+      create() {
+        this.navGraph = new NavGraph();
+        this.officeMap = new OfficeMap(this);
+        this.officeMap.build();
+
+        // Spawn 5 Agen Spesialis Manusia
+        this.agents.set('mamet', new MametAvatar(this, this.navGraph, 'command_spot', {
+          agentId: 'mamet',
+          agentName: 'Mamet Lead',
+          roleColor: 0x57d7e6
+        }));
+
+        this.agents.set('engineer', new MametAvatar(this, this.navGraph, 'engineer_spot', {
+          agentId: 'engineer',
+          agentName: 'Engineer',
+          roleColor: 0xffd479
+        }));
+
+        this.agents.set('researcher', new MametAvatar(this, this.navGraph, 'research_spot', {
+          agentId: 'researcher',
+          agentName: 'Researcher',
+          roleColor: 0xc89cff
+        }));
+
+        this.agents.set('archivist', new MametAvatar(this, this.navGraph, 'memory_spot', {
+          agentId: 'archivist',
+          agentName: 'Archivist',
+          roleColor: 0x72e6a1
+        }));
+
+        this.agents.set('tokensaver', new MametAvatar(this, this.navGraph, 'lounge_spot', {
+          agentId: 'tokensaver',
+          agentName: 'TokenSaver',
+          roleColor: 0xff9fc7
+        }));
+
+        // Ambient cyber dust particles
+        for (let i = 0; i < 24; i++) {
+          const x = Phaser.Math.Between(40, 920);
+          const y = Phaser.Math.Between(40, 560);
+          const p = this.add.circle(x, y, Phaser.Math.FloatBetween(1, 1.8), 0x57d7e6, Phaser.Math.FloatBetween(0.12, 0.4));
+          this.tweens.add({
+            targets: p,
+            y: y - 20,
+            alpha: { from: p.alpha, to: 0.08 },
+            duration: Phaser.Math.Between(2600, 4800),
+            yoyo: true,
+            repeat: -1
+          });
+        }
+
+        // Listeners
+        this.events.on('roomSelected', (roomKey) => {
+          EventBus.emit('roomClicked', roomKey);
+          let target = this.agents.get('mamet');
+          if (roomKey === 'engineer') target = this.agents.get('engineer');
+          else if (roomKey === 'research') target = this.agents.get('researcher');
+          else if (roomKey === 'memory') target = this.agents.get('archivist');
+          else if (roomKey === 'lounge') target = this.agents.get('tokensaver');
+
+          if (target) target.navigateToRoom(roomKey);
+        });
+
+        EventBus.on('dispatchActivity', (act) => {
+          let agent = this.agents.get('mamet');
+          if (act.targetAgent && this.agents.has(act.targetAgent)) {
+            agent = this.agents.get(act.targetAgent);
+          } else if (act.domain === 'engineering' || act.targetRoom === 'engineer') agent = this.agents.get('engineer');
+          else if (act.domain === 'research' || act.domain === 'rag' || act.targetRoom === 'research') agent = this.agents.get('researcher');
+          else if (act.domain === 'memory' || act.targetRoom === 'memory') agent = this.agents.get('archivist');
+          else if (act.targetRoom === 'alert' || act.status === 'failed') agent = this.agents.get('engineer') || this.agents.get('mamet');
+          else if (act.targetRoom === 'lounge') agent = this.agents.get('tokensaver');
+
+          if (agent) {
+            agent.navigateToRoom(act.targetRoom || agent.homeSpot, act);
+          }
+        });
+
+        EventBus.on('transferDataPacket', ({ from, to, label }) => {
+          this.transferDataPacket(from, to, label);
+        });
+
+        EventBus.on('setWorkspaceMode', (wsDef) => {
+          this.officeMap.setWorkspaceMode(wsDef);
+        });
+
+        EventBus.on('allLounge', () => {
+          this.agents.forEach((agent) => {
+            agent.navigateToRoom('lounge');
+          });
+        });
+
+        EventBus.on('allHome', () => {
+          this.agents.forEach((agent) => {
+            agent.navigateToRoom(agent.homeSpot.replace('_spot', ''));
+          });
+        });
+
+        EventBus.emit('gameReady', { agents: this.agents });
+      }
+
+      transferDataPacket(fromAgentId, toAgentId, label = 'Data', onComplete = null) {
+        const fromAgent = this.agents.get(fromAgentId);
+        const toAgent = this.agents.get(toAgentId);
+        const courier = this.agents.get('tokensaver');
+
+        if (!fromAgent || !toAgent || fromAgentId === toAgentId) {
+          if (onComplete) onComplete();
+          return;
+        }
+
+        // Proteksi Concurrency: Antrekan jika kurir sedang aktif di jalan
+        if (courier && courier.isDelivering) {
+          if (!this.courierQueue) this.courierQueue = [];
+          this.courierQueue.push({ fromAgentId, toAgentId, label, onComplete });
+          return;
+        }
+
+        if (courier) courier.isDelivering = true;
+
+        const finishDelivery = () => {
+          if (courier) courier.isDelivering = false;
+          if (onComplete) onComplete();
+          if (this.courierQueue && this.courierQueue.length > 0) {
+            const next = this.courierQueue.shift();
+            this.transferDataPacket(next.fromAgentId, next.toAgentId, next.label, next.onComplete);
+          }
+        };
+
+        const runner = courier || fromAgent;
+
+        // Partikel serah terima berkas
+        const spawnHandoverSparks = (x, y, color = 0x57d7e6) => {
+          for (let i = 0; i < 8; i++) {
+            const spark = this.add.circle(x, y - 20, 2.5, color, 0.9);
+            spark.setDepth(101);
+            const angle = (i / 8) * Math.PI * 2;
+            this.tweens.add({
+              targets: spark,
+              x: x + Math.cos(angle) * 22,
+              y: y - 20 + Math.sin(angle) * 22,
+              alpha: 0,
+              scale: 0.2,
+              duration: 400,
+              onComplete: () => spark.destroy()
+            });
+          }
+        };
+
+        // SKENARIO 1: TokenSaver adalah pengirim berkas
+        if (fromAgentId === 'tokensaver') {
+          runner.setCarryingFile(true, label);
+          runner.drawBubble(`🏃 Antar: ${label}`, 0xffd479);
+          runner.walkToNode(toAgent.currentNode?.id || toAgent.homeSpot, () => {
+            spawnHandoverSparks(toAgent.container.x, toAgent.container.y, 0x72e6a1);
+            runner.setCarryingFile(false);
+            runner.drawBubble(`🤝 Diserahkan ke ${toAgent.agentName}`, 0x72e6a1);
+            toAgent.drawBubble(`📥 Menerima: ${label}`, toAgent.roleColor);
+            if (toAgent.fsm.currentState === 'sleeping' || toAgent.fsm.currentState === 'relaxing') {
+              toAgent.fsm.transitionTo('surprised');
+            }
+            this.time.delayedCall(600, () => {
+              runner.walkToNode('lounge_spot_tokensaver', () => {
+                runner.drawBubble('☕ RELAX', 0xff9fc7);
+                runner.fsm.transitionTo('relaxing');
+                finishDelivery();
+              });
+            });
+          });
+          return;
+        }
+
+        // SKENARIO 2: TokenSaver adalah penerima berkas
+        if (toAgentId === 'tokensaver') {
+          runner.drawBubble(`🏃 Jemput: ${label}`, 0xff9fc7);
+          runner.walkToNode(fromAgent.currentNode?.id || fromAgent.homeSpot, () => {
+            spawnHandoverSparks(fromAgent.container.x, fromAgent.container.y, 0xffd479);
+            fromAgent.drawBubble(`📤 Berikan: ${label}`, fromAgent.roleColor);
+            runner.setCarryingFile(true, label);
+            runner.drawBubble(`📁 Ambil: ${label}`, 0xffd479);
+            this.time.delayedCall(350, () => {
+              runner.walkToNode('lounge_spot_tokensaver', () => {
+                runner.setCarryingFile(false);
+                runner.drawBubble(`📥 Berkas Disimpan`, 0x72e6a1);
+                runner.fsm.transitionTo('relaxing');
+                finishDelivery();
+              });
+            });
+          });
+          return;
+        }
+
+        // SKENARIO 3: TokenSaver sebagai Kurir Kantor Antar-Departemen
+        runner.drawBubble(`🏃 Jemput: ${label}`, 0xff9fc7);
+        runner.walkToNode(fromAgent.currentNode?.id || fromAgent.homeSpot, () => {
+          // Sampai di meja pengirim: ambil berkas fisik
+          spawnHandoverSparks(fromAgent.container.x, fromAgent.container.y, 0xffd479);
+          fromAgent.drawBubble(`📤 Serahkan ${label}`, fromAgent.roleColor);
+          runner.setCarryingFile(true, label);
+          runner.drawBubble(`📁 Membawa: ${label}`, 0xffd479);
+
+          this.time.delayedCall(350, () => {
+            // Berjalan membawa map berkas ke meja penerima
+            runner.walkToNode(toAgent.currentNode?.id || toAgent.homeSpot, () => {
+              // Serahkan map berkas ke penerima
+              spawnHandoverSparks(toAgent.container.x, toAgent.container.y, 0x72e6a1);
+              runner.setCarryingFile(false);
+              runner.drawBubble(`🤝 Serahkan ke ${toAgent.agentName}`, 0x72e6a1);
+
+              toAgent.drawBubble(`📥 Menerima ${label}`, toAgent.roleColor);
+              if (toAgent.fsm.currentState === 'sleeping' || toAgent.fsm.currentState === 'relaxing') {
+                toAgent.fsm.transitionTo('surprised');
+              }
+
+              this.time.delayedCall(600, () => {
+                // Kembali ke stasiun Pantry Lounge
+                runner.walkToNode('lounge_spot_tokensaver', () => {
+                  runner.drawBubble('☕ RELAX', 0xff9fc7);
+                  runner.fsm.transitionTo('relaxing');
+                  finishDelivery();
+                });
+              });
+            });
+          });
+        });
+      }
+
+      update(time, delta) {
+        this.agents.forEach((agent) => {
+          agent.update(delta);
+        });
+      }
+    }
+
+    // Inisialisasi Game
+    const config = {
+      type: Phaser.AUTO,
+      parent: 'game-container',
+      width: 960,
+      height: 600,
+      backgroundColor: '#07111a',
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+      },
+      scene: [BootScene, OfficeScene]
+    };
+
+    const game = new Phaser.Game(config);
+
+    // DOM Elements & Worker Tracking
+    const activityStream = document.getElementById('activity-stream');
+
+    const WORKER_INFO = {
+      mamet: {
+        name: 'Mamet Lead',
+        role: 'Team Lead — Orchestrator',
+        icon: '👑',
+        color: '#57d7e6'
+      },
+      engineer: {
+        name: 'The Engineer',
+        role: 'Developer — Code & Build',
+        icon: '💻',
+        color: '#ffd479'
+      },
+      researcher: {
+        name: 'The Researcher',
+        role: 'RAG Analyst — Docs & Truth',
+        icon: '📚',
+        color: '#c89cff'
+      },
+      archivist: {
+        name: 'The Archivist',
+        role: 'Memory Keeper — Vault & Graph',
+        icon: '💾',
+        color: '#72e6a1'
+      },
+      tokensaver: {
+        name: 'TokenSaver',
+        role: 'Courier Intern — Pantry & Comm',
+        icon: '☕',
+        color: '#ff9fc7'
+      }
+    };
+
+    let selectedAgentId = 'mamet';
+    const agentStates = {
+      mamet: { state: 'idle', room: 'command', activity: null },
+      engineer: { state: 'idle', room: 'engineer', activity: null },
+      researcher: { state: 'idle', room: 'research', activity: null },
+      archivist: { state: 'idle', room: 'memory', activity: null },
+      tokensaver: { state: 'relaxing', room: 'lounge', activity: null }
+    };
+
+    function updateFocusCard(agentId) {
+      selectedAgentId = agentId;
+      const info = WORKER_INFO[agentId] || WORKER_INFO.mamet;
+      const s = agentStates[agentId] || { state: 'idle', room: 'command' };
+      const r = ROOM_DEFINITIONS[s.room] || ROOM_DEFINITIONS.command;
+
+      // Update Roster Active Highlights
+      document.querySelectorAll('.agent-row').forEach(row => {
+        row.classList.toggle('active', row.getAttribute('data-agent') === agentId);
+      });
+
+      // Update Live Worker Focus Card
+      const iconEl = document.getElementById('worker-icon');
+      const nameEl = document.getElementById('worker-name');
+      const roleEl = document.getElementById('worker-role');
+      const roomEl = document.getElementById('room-name');
+      const statePill = document.getElementById('state-pill');
+      const descEl = document.getElementById('status-desc');
+
+      if (iconEl) iconEl.textContent = info.icon;
+      if (nameEl) nameEl.textContent = info.name;
+      if (roleEl) {
+        roleEl.textContent = info.role;
+        roleEl.style.color = info.color;
+      }
+      if (roomEl) roomEl.textContent = `📍 ${r.label}`;
+
+      const label = s.state === 'sleeping' ? '😴 TIDUR' : s.state === 'relaxing' ? '☕ SANTAI' : s.state === 'surprised' ? '⚡ WAKE UP!' : s.state.toUpperCase();
+      if (statePill) {
+        statePill.textContent = label;
+        statePill.style.color = info.color;
+        statePill.style.borderColor = info.color;
+      }
+
+      if (descEl) {
+        if (s.activity && s.activity.message) {
+          descEl.textContent = s.activity.message;
+        } else if (s.state === 'sleeping') {
+          descEl.textContent = `${info.name} sedang tidur pulas (Zzz) menunggu tugas berikutnya.`;
+        } else if (s.state === 'relaxing') {
+          descEl.textContent = `${info.name} sedang santai minum kopi hangat di Break Lounge.`;
+        } else if (s.state === 'coding') {
+          descEl.textContent = `${info.name} sedang menulis dan memverifikasi kode sistem di meja kerja.`;
+        } else if (s.state === 'researching') {
+          descEl.textContent = `${info.name} sedang meriset dokumen dan menyintesis pengetahuan RAG.`;
+        } else if (s.state === 'storing') {
+          descEl.textContent = `${info.name} sedang mengindeks context ke vault memori.`;
+        } else if (s.state === 'surprised') {
+          descEl.textContent = `${info.name} kaget terbangun karena ada instruksi tugas baru!`;
+        } else {
+          descEl.textContent = `${info.name} siap di stasiun kerja untuk menerima instruksi.`;
+        }
+      }
+    }
+
+    // Klik Baris Roster untuk Fokus ke Agen Tertentu
+    document.querySelectorAll('.agent-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const id = row.getAttribute('data-agent');
+        if (id) updateFocusCard(id);
+      });
+    });
+
+    // Klik Avatar di Kanvas Game
+    EventBus.on('avatarClicked', ({ agentId }) => {
+      if (agentId) updateFocusCard(agentId);
+    });
+
+    // Event Bus Bindings untuk Update Status
+    EventBus.on('avatarStateChanged', ({ agentId, name, state, room, activity }) => {
+      agentStates[agentId] = { state, room, activity };
+
+      const pill = document.getElementById(`pill-${agentId}`);
+      if (pill) {
+        const label = state === 'sleeping' ? '😴 Zzz...' : state === 'relaxing' ? '☕ RELAX' : state === 'surprised' ? '⚡ WAKE UP!' : state.toUpperCase();
+        pill.textContent = label;
+      }
+
+      // Jika pekerja ini yang sedang difokuskan, perbarui tampilan kartu fokusnya
+      if (agentId === selectedAgentId) {
+        updateFocusCard(agentId);
+      }
+    });
+
+    activityBus.subscribe((act) => {
+      EventBus.emit('dispatchActivity', act);
+
+      const el = document.createElement('div');
+      el.className = `event-item ${act.status === 'failed' ? 'alert' : act.status === 'success' ? 'success' : ''}`;
+      el.innerHTML = `
+        <div class="event-top">
+          <b>${act.eventType}</b>
+          <span>${act.status}</span>
+        </div>
+        <div class="event-msg">${act.message}</div>
+      `;
+      if (act.eventType === 'Pipeline.Completed' || act.eventType === 'Pipeline.Failed') {
+        const btn = document.getElementById('btn-full-pipeline');
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.textContent = '🚀 Jalankan Full Pipeline (Orkestrasi 5 Agen)';
+        }
+      }
+
+      activityStream.prepend(el);
+    });
+
+    // Simulasi Tombol
+    document.getElementById('btn-research').onclick = () => {
+      activityBus.publish({
+        id: `act-${Date.now()}`,
+        eventType: 'RAG:RetrievalStart',
+        domain: 'research',
+        status: 'running',
+        message: 'Researcher terbangun dan mulai meneliti dokumen di Research Room...'
+      });
+
+      setTimeout(() => {
+        activityBus.publish({
+          id: `act-end-${Date.now()}`,
+          eventType: 'RAG:Completed',
+          domain: 'research',
+          status: 'success',
+          message: 'Riset selesai. Pengetahuan berhasil disintesis.'
+        });
+      }, 4000);
+    };
+
+    document.getElementById('btn-code').onclick = () => {
+      activityBus.publish({
+        id: `act-${Date.now()}`,
+        eventType: 'Engineer:TaskAssigned',
+        domain: 'engineering',
+        status: 'running',
+        message: 'Engineer kaget terbangun, langsung mengetik kode di meja kerja...'
+      });
+
+      setTimeout(() => {
+        activityBus.publish({
+          id: `act-end-${Date.now()}`,
+          eventType: 'Engineer:ExecutionPassed',
+          domain: 'engineering',
+          status: 'success',
+          message: 'Pengujian kode lulus verifikasi (PASS) tanpa error.'
+        });
+      }, 4200);
+    };
+
+    document.getElementById('btn-memory').onclick = () => {
+      activityBus.publish({
+        id: `act-${Date.now()}`,
+        eventType: 'Memory:WriteStart',
+        domain: 'memory',
+        status: 'running',
+        message: 'Archivist menyimpan konteks penting ke vault memori...'
+      });
+
+      setTimeout(() => {
+        activityBus.publish({
+          id: `act-end-${Date.now()}`,
+          eventType: 'Memory:WriteEnd',
+          domain: 'memory',
+          status: 'success',
+          message: 'Konteks berhasil diindeks ke Truth Graph.'
+        });
+      }, 3500);
+    };
+
+    document.getElementById('btn-alert').onclick = () => {
+      activityBus.publish({
+        id: `act-${Date.now()}`,
+        eventType: 'Verification:Failed',
+        domain: 'verification',
+        status: 'failed',
+        message: 'Peringatan Verifikasi: Masalah ditemukan! Agen bergegas ke Stasiun Bahaya.'
+      });
+    };
+
+    const btnPipeline = document.getElementById('btn-full-pipeline');
+    if (btnPipeline) {
+      btnPipeline.onclick = () => {
+        if (activityAdapter.pipelineRunning) return;
+        btnPipeline.disabled = true;
+        btnPipeline.style.opacity = '0.6';
+        btnPipeline.textContent = '⏳ Orkestrasi Pipeline Sedang Berjalan...';
+        activityAdapter.runFullPipelineSimulation((from, to, label) => {
+          EventBus.emit('transferDataPacket', { from, to, label });
+        });
+      };
+    }
+
+    document.getElementById('btn-lounge').onclick = () => {
+      EventBus.emit('allLounge');
+    };
+
+    document.getElementById('btn-home').onclick = () => {
+      EventBus.emit('allHome');
+    };
+
+    // Manajemen Workspace Modes (Mamet OS Architecture)
+    let currentWorkspaceId = 'global';
+
+    function setWorkspace(wsId) {
+      currentWorkspaceId = wsId;
+      const wsDef = WORKSPACE_DEFINITIONS[wsId] || WORKSPACE_DEFINITIONS.global;
+
+      // Update Toolbar Tabs Active Class
+      document.querySelectorAll('.ws-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-ws') === wsId);
+      });
+
+      // Update Workspace Manifest Card di HUD
+      const badgeEl = document.getElementById('ws-badge');
+      const nameEl = document.getElementById('ws-name');
+      const descEl = document.getElementById('ws-desc');
+      const capsEl = document.getElementById('ws-caps');
+      const permRead = document.getElementById('ws-perm-read');
+      const permWrite = document.getElementById('ws-perm-write');
+      const permTools = document.getElementById('ws-perm-tools');
+
+      if (badgeEl) {
+        badgeEl.textContent = wsDef.badge;
+        badgeEl.style.color = wsDef.color;
+        badgeEl.style.borderColor = wsDef.color;
+      }
+      if (nameEl) nameEl.textContent = wsDef.name;
+      if (descEl) descEl.textContent = wsDef.description;
+
+      if (capsEl) {
+        capsEl.innerHTML = wsDef.capabilities
+          .map(c => `<span class="cap-badge" style="color:${wsDef.color}; border-color:${wsDef.color}55">${c}</span>`)
+          .join('');
+      }
+
+      if (permRead) permRead.textContent = wsDef.permissions.read_scope;
+      if (permWrite) permWrite.textContent = wsDef.permissions.write_scope;
+      if (permTools) permTools.textContent = wsDef.permissions.tools_access;
+
+      // Beritahu Phaser OfficeScene untuk menyorot ruangan aktif dan meredupkan yang di luar cakupan
+      EventBus.emit('setWorkspaceMode', wsDef);
+
+      // Fokuskan pekerja utama workspace ini
+      if (wsDef.primaryAgent) {
+        updateFocusCard(wsDef.primaryAgent);
+      }
+
+      // Log ke activity stream
+      activityBus.publish({
+        id: `ws-${Date.now()}`,
+        eventType: 'Workspace:Switched',
+        domain: 'workspace',
+        status: 'success',
+        targetRoom: wsDef.activeRooms[0] || 'command',
+        targetAgent: wsDef.primaryAgent,
+        message: `Mode Workspace aktif: ${wsDef.name} (${wsDef.id}). Izin: ${wsDef.permissions.tools_access}.`
+      });
+    }
+
+    // Bind Event Klik Tab Workspace
+    document.querySelectorAll('.ws-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wsId = btn.getAttribute('data-ws');
+        if (wsId) setWorkspace(wsId);
+      });
+    });
+
+    // Uji Antar Berkas Kurir Manual
+    const courierPairs = [
+      { from: 'mamet', to: 'researcher', label: 'Brief Riset' },
+      { from: 'researcher', to: 'engineer', label: 'Spesifikasi RAG' },
+      { from: 'engineer', to: 'archivist', label: 'Kode Modul' },
+      { from: 'archivist', to: 'tokensaver', label: 'Ringkasan Laporan' },
+      { from: 'tokensaver', to: 'mamet', label: 'Laporan Akhir' }
+    ];
+    let courierPairIdx = 0;
+
+    const btnCourier = document.getElementById('btn-courier-run');
+    if (btnCourier) {
+      btnCourier.onclick = () => {
+        const pair = courierPairs[courierPairIdx % courierPairs.length];
+        courierPairIdx++;
+        EventBus.emit('transferDataPacket', {
+          from: pair.from,
+          to: pair.to,
+          label: pair.label
+        });
+        activityBus.publish({
+          id: `courier-${Date.now()}`,
+          eventType: 'Courier:Dispatch',
+          domain: 'tool',
+          status: 'running',
+          targetRoom: 'lounge',
+          targetAgent: 'tokensaver',
+          message: `TokenSaver membawa map berkas "${pair.label}" dari ${pair.from} ke ${pair.to}...`
+        });
+      };
+    }
+
+    // Klik Ruangan di Kanvas -> Update Room Info di HUD
+    EventBus.on('roomClicked', (roomKey) => {
+      const r = ROOM_DEFINITIONS[roomKey];
+      if (!r) return;
+      const wsDef = WORKSPACE_DEFINITIONS[currentWorkspaceId] || WORKSPACE_DEFINITIONS.global;
+      const isOffScope = currentWorkspaceId !== 'global' && !wsDef.activeRooms.includes(roomKey);
+
+      document.getElementById('room-name').textContent = `📍 ${r.label}${isOffScope ? ' [OFF-SCOPE]' : ''}`;
+      const descEl = document.getElementById('status-desc');
+      if (descEl) {
+        if (isOffScope) {
+          descEl.textContent = `⚠️ Ruangan ${r.label} di luar cakupan aktif ${wsDef.name}. Beralih ke workspace terkait atau Global OS untuk menggunakan fasilitas ini.`;
+        } else {
+          descEl.textContent = `Fokus Area: ${r.label} — ${r.sublabel}. Klik avatar untuk melihat detail pekerja.`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

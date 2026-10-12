@@ -1,0 +1,41 @@
+.mamet-avatar-canvas {
+  width: fit-content;
+  border: 1px solid #1b4254;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #081621;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .28), inset 0 0 50px rgba(87, 215, 230, .06);
+}
+
+.mamet-avatar-canvas__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  padding: 0 12px;
+  border-bottom: 1px solid #173849;
+  color: #b9d7dd;
+  background: #0b1b28;
+  font: 600 11px/1.2 Inter, system-ui, sans-serif;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.mamet-avatar-canvas__badge {
+  border: 1px solid #2d6978;
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: #57d7e6;
+  font-size: 9px;
+}
+
+.mamet-avatar-canvas__surface {
+  display: block;
+  max-width: 100%;
+  cursor: pointer;
+}
+
+.mamet-avatar-canvas__surface:focus-visible {
+  outline: 2px solid #57d7e6;
+  outline-offset: -2px;
+}
